@@ -47,8 +47,11 @@ async def save_note(client: Client, message: Message):
     if message.reply_to_message and len(message.text.split()) >= 2:
         note_name = message.text.split(maxsplit=1)[1]
         if message.reply_to_message.media_group_id:
-            checking_note = db.get("core.notes", f"note{note_name}", False)
-            if not checking_note:
+            if checking_note := db.get(
+                "core.notes", f"note{note_name}", False
+            ):
+                await message.edit("<b>This note already exists</b>", parse_mode=enums.ParseMode.HTML)
+            else:
                 get_media_group = [
                     _.id
                     for _ in await client.get_media_group(
@@ -72,28 +75,25 @@ async def save_note(client: Client, message: Message):
                 }
                 db.set("core.notes", f"note{note_name}", note)
                 await message.edit(f"<b>Note {note_name} saved</b>", parse_mode=enums.ParseMode.HTML)
-            else:
-                await message.edit("<b>This note already exists</b>", parse_mode=enums.ParseMode.HTML)
+        elif checking_note := db.get("core.notes", f"note{note_name}", False):
+            await message.edit("<b>This note already exists</b>", parse_mode=enums.ParseMode.HTML)
         else:
-            checking_note = db.get("core.notes", f"note{note_name}", False)
-            if not checking_note:
-                try:
-                    message_id = await message.reply_to_message.forward(chat_id)
-                except errors.ChatForwardsRestricted:
-                    message_id = await message.copy(chat_id)
-                note = {
-                    "MEDIA_GROUP": False,
-                    "MESSAGE_ID": str(message_id.id),
-                    "CHAT_ID": str(chat_id),
-                }
-                db.set("core.notes", f"note{note_name}", note)
-                await message.edit(f"<b>Note {note_name} saved</b>", parse_mode=enums.ParseMode.HTML)
-            else:
-                await message.edit("<b>This note already exists</b>", parse_mode=enums.ParseMode.HTML)
+            try:
+                message_id = await message.reply_to_message.forward(chat_id)
+            except errors.ChatForwardsRestricted:
+                message_id = await message.copy(chat_id)
+            note = {
+                "MEDIA_GROUP": False,
+                "MESSAGE_ID": str(message_id.id),
+                "CHAT_ID": str(chat_id),
+            }
+            db.set("core.notes", f"note{note_name}", note)
+            await message.edit(f"<b>Note {note_name} saved</b>", parse_mode=enums.ParseMode.HTML)
     elif len(message.text.split()) >= 3:
         note_name = message.text.split(maxsplit=1)[1].split()[0]
-        checking_note = db.get("core.notes", f"note{note_name}", False)
-        if not checking_note:
+        if checking_note := db.get("core.notes", f"note{note_name}", False):
+            await message.edit("<b>This note already exists</b>", parse_mode=enums.ParseMode.HTML)
+        else:
             message_id = await client.send_message(
                 chat_id, message.text.split(note_name)[1].strip()
             )
@@ -104,8 +104,6 @@ async def save_note(client: Client, message: Message):
             }
             db.set("core.notes", f"note{note_name}", note)
             await message.edit(f"<b>Note {note_name} saved</b>", parse_mode=enums.ParseMode.HTML)
-        else:
-            await message.edit("<b>This note already exists</b>", parse_mode=enums.ParseMode.HTML)
     else:
         await message.edit(
             f"<b>Example: <code>{prefix}save note_name</code></b>",
@@ -119,8 +117,7 @@ async def note_send(client: Client, message: Message):
         await message.edit("<b>Loading...</b>", parse_mode=enums.ParseMode.HTML)
 
         note_name = f"{message.text.split(maxsplit=1)[1]}"
-        find_note = db.get("core.notes", f"note{note_name}", False)
-        if find_note:
+        if find_note := db.get("core.notes", f"note{note_name}", False):
             try:
                 await client.get_messages(
                     int(find_note["CHAT_ID"]), int(find_note["MESSAGE_ID"])
@@ -264,8 +261,7 @@ async def notes(_, message: Message):
 async def clear_note(_, message: Message):
     if len(message.text.split()) >= 2:
         note_name = message.text.split(maxsplit=1)[1]
-        find_note = db.get("core.notes", f"note{note_name}", False)
-        if find_note:
+        if find_note := db.get("core.notes", f"note{note_name}", False):
             db.remove("core.notes", f"note{note_name}")
             await message.edit(f"<b>Note {note_name} deleted</b>", parse_mode=enums.ParseMode.HTML)
         else:

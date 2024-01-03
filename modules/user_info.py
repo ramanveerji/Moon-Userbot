@@ -36,10 +36,7 @@ async def get_user_inf(client: Client, message: Message):
     user = response.users[0]
     full_user = response.full_user
 
-    if user.username is None:
-        username = "None"
-    else:
-        username = f"@{user.username}"
+    username = "None" if user.username is None else f"@{user.username}"
     about = "None" if full_user.about is None else full_user.about
 
     user_info = f"""|=<b>Username: {username}
@@ -82,10 +79,7 @@ async def get_full_user_inf(client: Client, message: Message):
         # await client.delete_messages("@creationdatebot", interact_with_to_delete)
         interact_with_to_delete.clear()
 
-        if user.username is None:
-            username = "None"
-        else:
-            username = f"@{user.username}"
+        username = "None" if user.username is None else f"@{user.username}"
         about = "None" if full_user.about is None else full_user.about
         user_info = f"""|=<b>Username: {username}
 |-Id: <code>{user.id}</code>

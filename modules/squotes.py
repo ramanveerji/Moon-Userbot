@@ -418,7 +418,7 @@ def get_reply_poll_text(poll: types.Poll) -> str:
 def get_full_name(user: types.User) -> str:
     name = user.first_name
     if user.last_name:
-        name += " " + user.last_name
+        name += f" {user.last_name}"
     return name
 
 

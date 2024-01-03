@@ -31,27 +31,24 @@ from utils.config import apiflash_key
 def generate_screenshot(url):
     api_url = f'https://api.apiflash.com/v1/urltoimage?access_key={apiflash_key}&url={url}&format=png'
     response = requests.get(api_url)
-    if response.status_code == 200:
-        return BytesIO(response.content)
-    else:
-        return None
+    return BytesIO(response.content) if response.status_code == 200 else None
 
 
 http = urllib3.PoolManager()
 
 @Client.on_message(filters.command("short", prefix) & filters.me)
 async def short(_, message: Message):
-  if len(message.command) > 1:
-      link = message.text.split(maxsplit=1)[1]
-  elif message.reply_to_message:
-      link = message.reply_to_message.text
-  else:
-      await message.edit(f"<b>Usage: </b><code>{prefix}short [url to short]</code>", parse_mode=enums.ParseMode.HTML)
-      return
+    if len(message.command) > 1:
+        link = message.text.split(maxsplit=1)[1]
+    elif message.reply_to_message:
+        link = message.reply_to_message.text
+    else:
+        await message.edit(f"<b>Usage: </b><code>{prefix}short [url to short]</code>", parse_mode=enums.ParseMode.HTML)
+        return
 
-  r = http.request('GET', 'https://clck.ru/--?url='+link)
+    r = http.request('GET', f'https://clck.ru/--?url={link}')
 
-  await message.edit(r.data.decode().replace("https://", "<b>Shortened Url:</b>"), disable_web_page_preview=True, parse_mode=enums.ParseMode.HTML)
+    await message.edit(r.data.decode().replace("https://", "<b>Shortened Url:</b>"), disable_web_page_preview=True, parse_mode=enums.ParseMode.HTML)
 
 
 
@@ -93,9 +90,6 @@ async def upload_cmd(_, message: Message):
     max_size = 512 * 1024 * 1024
     max_size_mb = 100
 
-    min_file_age = 31
-    max_file_age = 180
-
     await message.edit("<b>Downloading...</b>", parse_mode=enums.ParseMode.HTML)
 
     try:
@@ -121,6 +115,9 @@ async def upload_cmd(_, message: Message):
 
     if response.ok:
         file_size_mb = os.path.getsize(file_name) / 1024 / 1024
+        min_file_age = 31
+        max_file_age = 180
+
         file_age = int(
             min_file_age
             + (max_file_age - min_file_age) *
@@ -145,11 +142,11 @@ async def webshot(client: Client, message: Message):
     if len(message.command) > 1:
         url = message.text.split(maxsplit=1)[1]
         if not url.startswith("https://"):
-            url = "https://" + message.text.split(maxsplit=1)[1]
+            url = f"https://{message.text.split(maxsplit=1)[1]}"
     elif message.reply_to_message:
         url = message.reply_to_message.text
         if not url.startswith("https://"):
-            url = "https://" + message.text.split(maxsplit=1)[1]
+            url = f"https://{message.text.split(maxsplit=1)[1]}"
     else:
         await message.edit_text(f"<b>Usage: </b><code>{prefix}webshot/{prefix}ws [url/reply to url]</code>", parse_mode=enums.ParseMode.HTML)
         return
@@ -157,8 +154,7 @@ async def webshot(client: Client, message: Message):
     chat_id = message.chat.id
 
     try:
-        screenshot_data = generate_screenshot(url)
-        if screenshot_data:
+        if screenshot_data := generate_screenshot(url):
             await message.delete()
             await client.send_photo(chat_id, screenshot_data, caption=f"Screenshot of {url}")
         else:

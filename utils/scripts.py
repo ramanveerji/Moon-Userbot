@@ -40,16 +40,16 @@ interact_with_to_delete = []
 
 def time_formatter(milliseconds: int) -> str:
     """Time Formatter"""
-    seconds, milliseconds = divmod(int(milliseconds), 1000)
+    seconds, milliseconds = divmod(milliseconds, 1000)
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
     tmp = (
-        ((str(days) + " day(s), ") if days else "")
-        + ((str(hours) + " hour(s), ") if hours else "")
-        + ((str(minutes) + " minute(s), ") if minutes else "")
-        + ((str(seconds) + " second(s), ") if seconds else "")
-        + ((str(milliseconds) + " millisecond(s), ") if milliseconds else "")
+        (f"{str(days)} day(s), " if days else "")
+        + (f"{str(hours)} hour(s), " if hours else "")
+        + (f"{str(minutes)} minute(s), " if minutes else "")
+        + (f"{str(seconds)} second(s), " if seconds else "")
+        + (f"{str(milliseconds)} millisecond(s), " if milliseconds else "")
     )
     return tmp[:-2]
 
@@ -63,7 +63,7 @@ def humanbytes(size):
     while size > power:
         size /= power
         raised_to_pow += 1
-    return str(round(size, 2)) + " " + dict_power_n[raised_to_pow] + "B"
+    return f"{str(round(size, 2))} {dict_power_n[raised_to_pow]}B"
 
 async def edit_or_send_as_file(
     text: str,
@@ -77,29 +77,27 @@ async def edit_or_send_as_file(
     if not text:
         await message.edit("`Wait, What?`", parse_mode=enums.ParseMode.MARKDOWN)
         return
-    if len(text) > 1024:
-        await message.edit("`OutPut is Too Large, Sending As File!`", parse_mode=enums.ParseMode.MARKDOWN)
-        file_names = f"{file_name}.text"
-        open(file_names, "w").write(text)
-        await client.send_document(message.chat.id, file_names, caption=caption)
-        await message.delete()
-        if os.path.exists(file_names):
-            os.remove(file_names)
-        return
-    else:
+    if len(text) <= 1024:
         return await message.edit(text, parse_mode=parse_mode)
+    await message.edit("`OutPut is Too Large, Sending As File!`", parse_mode=enums.ParseMode.MARKDOWN)
+    file_names = f"{file_name}.text"
+    open(file_names, "w").write(text)
+    await client.send_document(message.chat.id, file_names, caption=caption)
+    await message.delete()
+    if os.path.exists(file_names):
+        os.remove(file_names)
+    return
 
 def get_text(message: Message) -> [None, str]:
     """Extract Text From Commands"""
     text_to_return = message.text
     if message.text is None:
         return None
-    if " " in text_to_return:
-        try:
-            return message.text.split(None, 1)[1]
-        except IndexError:
-            return None
-    else:
+    if " " not in text_to_return:
+        return None
+    try:
+        return message.text.split(None, 1)[1]
+    except IndexError:
         return None
 
 async def progress(current, total, message, start, type_of_ps, file_name=None):
@@ -115,8 +113,8 @@ async def progress(current, total, message, start, type_of_ps, file_name=None):
         time_to_completion = round((total - current) / speed) * 1000
         estimated_total_time = elapsed_time + time_to_completion
         progress_str = "{0}{1} {2}%\n".format(
-            "".join(["▰" for i in range(math.floor(percentage / 10))]),
-            "".join(["▱" for i in range(10 - math.floor(percentage / 10))]),
+            "".join(["▰" for _ in range(math.floor(percentage / 10))]),
+            "".join(["▱" for _ in range(10 - math.floor(percentage / 10))]),
             round(percentage, 2),
         )
         tmp = progress_str + "{0} of {1}\nETA: {2}".format(
@@ -133,7 +131,7 @@ async def progress(current, total, message, start, type_of_ps, file_name=None):
                 pass
         else:
             try:
-                await message.edit("{}\n{}".format(type_of_ps, tmp), parse_mode=enums.ParseMode.MARKDOWN)
+                await message.edit(f"{type_of_ps}\n{tmp}", parse_mode=enums.ParseMode.MARKDOWN)
             except FloodWait as e:
                 await asyncio.sleep(e.x)
             except MessageNotModified:
@@ -141,10 +139,6 @@ async def progress(current, total, message, start, type_of_ps, file_name=None):
 
 async def edit_or_reply(message, text, parse_mode=enums.ParseMode.MARKDOWN):
     """Edit Message If Its From Self, Else Reply To Message"""
-    if not message:
-        return await message.edit(text, parse_mode=parse_mode)
-    if not message.from_user:
-        return await message.edit(text, parse_mode=parse_mode)
     return await message.edit(text, parse_mode=parse_mode)
 
 def text(message: types.Message) -> str:
@@ -231,7 +225,7 @@ def format_module_help(module_name: str, full=True):
 
     for command, desc in commands.items():
         cmd = command.split(maxsplit=1)
-        args = " <code>" + cmd[1] + "</code>" if len(cmd) > 1 else ""
+        args = f" <code>{cmd[1]}</code>" if len(cmd) > 1 else ""
         help_text += f"<code>{prefix}{cmd[0]}</code>{args} — <i>{desc}</i>\n"
 
     return help_text
@@ -247,7 +241,7 @@ def format_small_module_help(module_name: str, full=True):
     )
     for command, desc in commands.items():
         cmd = command.split(maxsplit=1)
-        args = " <code>" + cmd[1] + "</code>" if len(cmd) > 1 else ""
+        args = f" <code>{cmd[1]}</code>" if len(cmd) > 1 else ""
         help_text += f"<code>{prefix}{cmd[0]}</code>{args}\n"
     help_text += (
         f"\nGet full usage: <code>{prefix}help {module_name}</code></b>"
@@ -368,7 +362,7 @@ async def load_module(
 
         module = importlib.import_module(path)
 
-    for name, obj in vars(module).items():
+    for obj in vars(module).values():
         if type(getattr(obj, "handlers", [])) == list:
             for handler, group in getattr(obj, "handlers", []):
                 client.add_handler(handler, group)
@@ -379,13 +373,13 @@ async def load_module(
 
 
 async def unload_module(module_name: str, client: Client) -> bool:
-    path = "modules.custom_modules." + module_name
+    path = f"modules.custom_modules.{module_name}"
     if path not in sys.modules:
         return False
 
     module = importlib.import_module(path)
 
-    for name, obj in vars(module).items():
+    for obj in vars(module).values():
         for handler, group in getattr(obj, "handlers", []):
             client.remove_handler(handler, group)
 

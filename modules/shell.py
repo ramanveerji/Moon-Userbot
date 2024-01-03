@@ -40,7 +40,7 @@ async def shell(_, message: Message):
     char = "#" if os.getuid() == 0 else "$"
     text = f"<b>{char}</b> <code>{cmd_text}</code>\n\n"
 
-    await message.edit(text + "<b>Running...</b>", parse_mode=enums.ParseMode.HTML)
+    await message.edit(f"{text}<b>Running...</b>", parse_mode=enums.ParseMode.HTML)
     try:
         start_time = perf_counter()
         stdout, stderr = cmd_obj.communicate(timeout=60)

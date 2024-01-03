@@ -28,7 +28,7 @@ async def support(_, message: Message):
 
     commands_count = 0.0
     for module in modules_help:
-        for cmd in module:
+        for _ in module:
             commands_count += 1
 
     await message.edit(

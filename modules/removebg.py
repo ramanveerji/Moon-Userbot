@@ -123,7 +123,7 @@ async def rmbg(client: Client, message: Message):
         end = datetime.now()
         ms = (end - start).seconds
         await pablo.edit(
-            "<code>Removed image's Background in {} seconds, powered by</code> <b>@moonuserbot</b>".format(ms)
+            f"<code>Removed image's Background in {ms} seconds, powered by</code> <b>@moonuserbot</b>"
         )
     else:
         await pablo.edit(
@@ -147,9 +147,7 @@ async def rembg(client: Client, message: Message):
             except ValueError:
                 await message.edit("<b>File not found</b>", parse_mode=enums.ParseMode.HTML)
                 return
-        background_removed_data = remove_background(photo_data)
-
-        if background_removed_data:
+        if background_removed_data := remove_background(photo_data):
             await message.delete()
             await client.send_photo(chat_id, photo=background_removed_data, caption="Background removed!")
         else:
