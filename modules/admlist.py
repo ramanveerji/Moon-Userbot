@@ -141,7 +141,7 @@ class Chat(Object):
             dc_id=getattr(getattr(chat, "photo", None), "dc_id", None),
             has_protected_content=getattr(chat, "noforwards", None),
             client=client,
-            is_admin=True if getattr(chat, "admin_rights", False) else False,
+            is_admin=bool(getattr(chat, "admin_rights", False)),
             deactivated=getattr(chat, "deactivated"),
         )
 
@@ -178,7 +178,7 @@ class Chat(Object):
             members_count=getattr(channel, "participants_count", None),
             dc_id=getattr(getattr(channel, "photo", None), "dc_id", None),
             has_protected_content=getattr(channel, "noforwards", None),
-            is_admin=True if getattr(channel, "admin_rights", False) else False,
+            is_admin=bool(getattr(channel, "admin_rights", False)),
             client=client,
         )
 
@@ -278,11 +278,11 @@ async def get_dialogs(
             messages[chat_id] = await types.Message._parse(
                 self, message, users, chats
             )
-        dialogs = []
-        for dialog in r.dialogs:
-            if not isinstance(dialog, raw.types.Dialog):
-                continue
-            dialogs.append(Dialog._parse(self, dialog, messages, users, chats))
+        dialogs = [
+            Dialog._parse(self, dialog, messages, users, chats)
+            for dialog in r.dialogs
+            if isinstance(dialog, raw.types.Dialog)
+        ]
         if not dialogs:
             return
         last = dialogs[-1]
@@ -342,13 +342,8 @@ async def admlist(client: Client, message: types.Message):
             len(adminned_chats) + len(owned_chats) + len(owned_usernamed_chats)
         )
         await message.edit(
-            text + "\n"
-            f"<b><u>Total:</u></b> {total_count}"
-            f"\n<b><u>Adminned chats:</u></b> {len(adminned_chats)}\n"
-            f"<b><u>Owned chats:</u></b> {len(owned_chats)}\n"
-            f"<b><u>Owned chats with username:</u></b> {len(owned_usernamed_chats)}\n\n"
-            f"Done at {round(stop - start, 3)} seconds.",
-            parse_mode=enums.ParseMode.HTML
+            f"{text}\n<b><u>Total:</u></b> {total_count}\n<b><u>Adminned chats:</u></b> {len(adminned_chats)}\n<b><u>Owned chats:</u></b> {len(owned_chats)}\n<b><u>Owned chats with username:</u></b> {len(owned_usernamed_chats)}\n\nDone at {round(stop - start, 3)} seconds.",
+            parse_mode=enums.ParseMode.HTML,
         )
     except Exception as e:
         await message.edit(format_exc(e), parse_mode=enums.ParseMode.HTML)

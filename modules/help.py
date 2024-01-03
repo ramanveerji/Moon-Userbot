@@ -72,11 +72,7 @@ async def help_cmd(_, message: Message):
                     cmd = command.split(maxsplit=1)
                     cmd_desc = commands[command]
                     return await message.edit(
-                        f"<b>Help for command <code>{prefix}{command_name}</code></b>\n"
-                        f"Module: {name} (<code>{prefix}help {name}</code>)\n\n"
-                        f"<code>{prefix}{cmd[0]}</code>"
-                        f"{' <code>' + cmd[1] + '</code>' if len(cmd) > 1 else ''}"
-                        f" — <i>{cmd_desc}</i>",
+                        f"<b>Help for command <code>{prefix}{command_name}</code></b>\nModule: {name} (<code>{prefix}help {name}</code>)\n\n<code>{prefix}{cmd[0]}</code>{f' <code>{cmd[1]}</code>' if len(cmd) > 1 else ''} — <i>{cmd_desc}</i>",
                         parse_mode=enums.ParseMode.HTML,
                     )
         await message.edit(
@@ -90,11 +86,7 @@ async def help_cmd(_, message: Message):
                     cmd = command.split(maxsplit=1)
                     cmd_desc = commands[command]
                     return await message.edit(
-                        f"<b>Help for command <code>{prefix}{command_name}</code></b>\n"
-                        f"Module: {name} (<code>{prefix}help {name}</code>)\n\n"
-                        f"<code>{prefix}{cmd[0]}</code>"
-                        f"{' <code>' + cmd[1] + '</code>' if len(cmd) > 1 else ''}"
-                        f" — <i>{cmd_desc}</i>",
+                        f"<b>Help for command <code>{prefix}{command_name}</code></b>\nModule: {name} (<code>{prefix}help {name}</code>)\n\n<code>{prefix}{cmd[0]}</code>{f' <code>{cmd[1]}</code>' if len(cmd) > 1 else ''} — <i>{cmd_desc}</i>",
                         parse_mode=enums.ParseMode.HTML,
                     )
         await message.edit(

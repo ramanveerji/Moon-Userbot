@@ -114,10 +114,7 @@ class SqliteDatabase(Database):
         cur = self._execute(module, sql, {"tabl": module, "var": variable})
 
         row = cur.fetchone()
-        if row is None:
-            return default
-        else:
-            return self._parse_row(row)
+        return default if row is None else self._parse_row(row)
 
     def set(self, module: str, variable: str, value) -> bool:
         sql = f"""
@@ -153,11 +150,7 @@ class SqliteDatabase(Database):
         sql = f"SELECT * FROM '{module}'"
         cur = self._execute(module, sql)
 
-        collection = {}
-        for row in cur:
-            collection[row["var"]] = self._parse_row(row)
-
-        return collection
+        return {row["var"]: self._parse_row(row) for row in cur}
 
     def close(self):
         self._conn.commit()

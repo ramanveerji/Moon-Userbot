@@ -37,50 +37,43 @@ auth_hashes = db.get("core.sessionkiller", "auths_hashes", [])
 
 @Client.on_message(filters.command(["sessions"], prefix) & filters.me)
 async def sessions_list(client: Client, message: Message):
-    formatted_sessions = []
     sessions = (await client.invoke(GetAuthorizations())).authorizations
-    for num, session in enumerate(sessions, 1):
-        formatted_sessions.append(
-            (
-                "<b>{num}</b>. <b>{model}</b> on <code>{platform}</code>\n"
-                "<b>Hash:</b> {hash}\n"
-                "<b>App name:</b> <code>{app_name}</code> v.{version}\n"
-                "<b>Created (last activity):</b> {created} ({last_activity})\n"
-                "<b>IP and location: </b>: <code>{ip}</code> (<i>{location}</i>)\n"
-                "<b>Official status:</b> <code>{official}</code>\n"
-                "<b>2FA accepted:</b> <code>{password_pending}</code>\n"
-                "<b>Can accept calls / secret chats:</b> {calls} / {secret_chats}"
-            ).format(
-                num=num,
-                model=escape(session.device_model),
-                platform=escape(
-                    session.platform
-                    if session.platform != ""
-                    else "unknown platform"
-                ),
-                hash=session.hash,
-                app_name=escape(session.app_name),
-                version=escape(
-                    session.app_version
-                    if session.app_version != ""
-                    else "unknown"
-                ),
-                created=datetime.fromtimestamp(
-                    session.date_created
-                ).isoformat(),
-                last_activity=datetime.fromtimestamp(
-                    session.date_active
-                ).isoformat(),
-                ip=session.ip,
-                location=session.country,
-                official="✅" if session.official_app else "❌️",
-                password_pending="❌️️" if session.password_pending else "✅",
-                calls="❌️️" if session.call_requests_disabled else "✅",
-                secret_chats="❌️️"
-                if session.encrypted_requests_disabled
-                else "✅",
-            )
+    formatted_sessions = [
+        (
+            "<b>{num}</b>. <b>{model}</b> on <code>{platform}</code>\n"
+            "<b>Hash:</b> {hash}\n"
+            "<b>App name:</b> <code>{app_name}</code> v.{version}\n"
+            "<b>Created (last activity):</b> {created} ({last_activity})\n"
+            "<b>IP and location: </b>: <code>{ip}</code> (<i>{location}</i>)\n"
+            "<b>Official status:</b> <code>{official}</code>\n"
+            "<b>2FA accepted:</b> <code>{password_pending}</code>\n"
+            "<b>Can accept calls / secret chats:</b> {calls} / {secret_chats}"
+        ).format(
+            num=num,
+            model=escape(session.device_model),
+            platform=escape(
+                session.platform
+                if session.platform != ""
+                else "unknown platform"
+            ),
+            hash=session.hash,
+            app_name=escape(session.app_name),
+            version=escape(
+                session.app_version if session.app_version != "" else "unknown"
+            ),
+            created=datetime.fromtimestamp(session.date_created).isoformat(),
+            last_activity=datetime.fromtimestamp(
+                session.date_active
+            ).isoformat(),
+            ip=session.ip,
+            location=session.country,
+            official="✅" if session.official_app else "❌️",
+            password_pending="❌️️" if session.password_pending else "✅",
+            calls="❌️️" if session.call_requests_disabled else "✅",
+            secret_chats="❌️️" if session.encrypted_requests_disabled else "✅",
         )
+        for num, session in enumerate(sessions, 1)
+    ]
     answer = "<b>Active sessions at your account:</b>\n\n"
     chunk = []
     for s in formatted_sessions:

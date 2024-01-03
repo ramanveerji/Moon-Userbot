@@ -165,8 +165,10 @@ async def ban_command(client: Client, message: Message):
             )
 
             await message.edit(
-                f"<b>{name}</b> <code>banned!</code>"
-                + f"\n{'<b>Cause:</b> <i>' + text_c.split(maxsplit=1)[1] + '</i>' if len(text_c.split()) > 1 else ''}",
+                (
+                    f"<b>{name}</b> <code>banned!</code>"
+                    + f"\n{f'<b>Cause:</b> <i>{text_c.split(maxsplit=1)[1]}</i>' if len(text_c.split()) > 1 else ''}"
+                ),
                 parse_mode=enums.ParseMode.HTML,
             )
         except UserAdminInvalid:
@@ -259,9 +261,11 @@ async def unban_command(client: Client, message: Message):
         try:
             await client.unban_chat_member(message.chat.id, user_for_unban)
             await message.edit(
-                f"<b>{name}</b> <code>unbanned!</code>"
-                + f"\n{'<b>Cause:</b> <i>' + cause.split(maxsplit=1)[1] + '</i>' if len(cause.split()) > 1 else ''}",
-                parse_mode=enums.ParseMode.HTML
+                (
+                    f"<b>{name}</b> <code>unbanned!</code>"
+                    + f"\n{f'<b>Cause:</b> <i>{cause.split(maxsplit=1)[1]}</i>' if len(cause.split()) > 1 else ''}"
+                ),
+                parse_mode=enums.ParseMode.HTML,
             )
         except UserAdminInvalid:
             await message.edit("<b>No rights</b>", parse_mode=enums.ParseMode.HTML)
@@ -359,9 +363,11 @@ async def kick_command(client: Client, message: Message):
                 )
 
                 await message.edit(
-                    f"<b>{message.reply_to_message.from_user.first_name}</b> <code>kicked!</code>"
-                    + f"\n{'<b>Cause:</b> <i>' + text_c.split(maxsplit=1)[1] + '</i>' if len(text_c.split()) > 1 else ''}",
-                    parse_mode=enums.ParseMode.HTML
+                    (
+                        f"<b>{message.reply_to_message.from_user.first_name}</b> <code>kicked!</code>"
+                        + f"\n{f'<b>Cause:</b> <i>{text_c.split(maxsplit=1)[1]}</i>' if len(text_c.split()) > 1 else ''}"
+                    ),
+                    parse_mode=enums.ParseMode.HTML,
                 )
             except UserAdminInvalid:
                 await message.edit("<b>No rights</b>", parse_mode=enums.ParseMode.HTML)
@@ -472,9 +478,11 @@ async def tmute_command(client: Client, message: Message):
             tmuted_users.append(user_for_tmute)
             db.set("core.ats", f"c{message.chat.id}", tmuted_users)
             await message.edit(
-                f"<b>{name}</b> <code>in tmute</code>"
-                + f"\n{'<b>Cause:</b> <i>' + cause.split(maxsplit=1)[1] + '</i>' if len(cause.split()) > 1 else ''}",
-                parse_mode=enums.ParseMode.HTML
+                (
+                    f"<b>{name}</b> <code>in tmute</code>"
+                    + f"\n{f'<b>Cause:</b> <i>{cause.split(maxsplit=1)[1]}</i>' if len(cause.split()) > 1 else ''}"
+                ),
+                parse_mode=enums.ParseMode.HTML,
             )
         else:
             await message.edit(f"<b>{name}</b> <code>already in tmute</code>", parse_mode=enums.ParseMode.HTML)
@@ -506,9 +514,11 @@ async def tmute_command(client: Client, message: Message):
                     tmuted_users.append(user_to_tmute.id)
                     db.set("core.ats", f"c{message.chat.id}", tmuted_users)
                     await message.edit(
-                        f"<b>{name}</b> <code>in tmute</code>"
-                        + f"\n{'<b>Cause:</b> <i>' + cause.split(maxsplit=2)[2] + '</i>' if len(cause.split()) > 2 else ''}",
-                        parse_mode=enums.ParseMode.HTML
+                        (
+                            f"<b>{name}</b> <code>in tmute</code>"
+                            + f"\n{f'<b>Cause:</b> <i>{cause.split(maxsplit=2)[2]}</i>' if len(cause.split()) > 2 else ''}"
+                        ),
+                        parse_mode=enums.ParseMode.HTML,
                     )
                 else:
                     await message.edit(
@@ -546,9 +556,11 @@ async def tunmute_command(client: Client, message: Message):
             tmuted_users.remove(user_for_tunmute)
             db.set("core.ats", f"c{message.chat.id}", tmuted_users)
             await message.edit(
-                f"<b>{name}</b> <code>tunmuted</code>"
-                + f"\n{'<b>Cause:</b> <i>' + cause.split(maxsplit=1)[1] + '</i>' if len(cause.split()) > 1 else ''}",
-                parse_mode=enums.ParseMode.HTML
+                (
+                    f"<b>{name}</b> <code>tunmuted</code>"
+                    + f"\n{f'<b>Cause:</b> <i>{cause.split(maxsplit=1)[1]}</i>' if len(cause.split()) > 1 else ''}"
+                ),
+                parse_mode=enums.ParseMode.HTML,
             )
 
     elif not message.reply_to_message and message.chat.type not in [
@@ -585,9 +597,11 @@ async def tunmute_command(client: Client, message: Message):
                     tmuted_users.remove(user_to_tunmute.id)
                     db.set("core.ats", f"c{message.chat.id}", tmuted_users)
                     await message.edit(
-                        f"<b>{name}</b> <code>tunmuted</code>"
-                        + f"\n{'<b>Cause:</b> <i>' + cause.split(maxsplit=2)[2] + '</i>' if len(cause.split()) > 2 else ''}",
-                        parse_mode=enums.ParseMode.HTML
+                        (
+                            f"<b>{name}</b> <code>tunmuted</code>"
+                            + f"\n{f'<b>Cause:</b> <i>{cause.split(maxsplit=2)[2]}</i>' if len(cause.split()) > 2 else ''}"
+                        ),
+                        parse_mode=enums.ParseMode.HTML,
                     )
             except PeerIdInvalid:
                 await message.edit("<b>User is not found</b>", parse_mode=enums.ParseMode.HTML)
@@ -610,7 +624,7 @@ async def tunmute_users_command(client: Client, message: Message):
         count = 0
         tmuted_users = db.get("core.ats", f"c{message.chat.id}", [])
         for user in tmuted_users:
-            try:
+            with suppress(PeerIdInvalid):
                 _name_ = await client.get_chat(user)
                 count += 1
                 if await check_username_or_id(_name_.id) == "channel":
@@ -632,8 +646,6 @@ async def tunmute_users_command(client: Client, message: Message):
                     # invalid user type
                     continue
                 text += f"{count}. <b>{name}</b>\n"
-            except PeerIdInvalid:
-                pass
         if count == 0:
             await message.edit("<b>No users in tmute</b>", parse_mode=enums.ParseMode.HTML)
         else:
@@ -717,8 +729,9 @@ async def mute_command(client: Client, message: Message):
     ]:
         mute_seconds: int = 0
         for character in "mhdw":
-            match = re.search(rf"(\d+|(\d+\.\d+)){character}", message.text)
-            if match:
+            if match := re.search(
+                rf"(\d+|(\d+\.\d+)){character}", message.text
+            ):
                 if character == "m":
                     mute_seconds += int(
                         float(match.string[match.start() : match.end() - 1])
@@ -792,10 +805,9 @@ async def mute_command(client: Client, message: Message):
                 user_to_unmute = await client.get_users(cause.split(" ")[1])
                 mute_seconds: int = 0
                 for character in "mhdw":
-                    match = re.search(
+                    if match := re.search(
                         rf"(\d+|(\d+\.\d+)){character}", message.text
-                    )
-                    if match:
+                    ):
                         if character == "m":
                             mute_seconds += int(
                                 float(
@@ -1105,8 +1117,11 @@ async def delete_history(client: Client, message: Message):
                 )
 
                 await message.edit(
-                    f"<code>History from <b>{name}</b> was deleted!</code>"
-                    + f"\n{'<b>Cause:</b> <i>' + cause.split(maxsplit=1)[1] + '</i>' if len(cause.split()) > 1 else ''}", parse_mode=enums.ParseMode.HTML
+                    (
+                        f"<code>History from <b>{name}</b> was deleted!</code>"
+                        + f"\n{f'<b>Cause:</b> <i>{cause.split(maxsplit=1)[1]}</i>' if len(cause.split()) > 1 else ''}"
+                    ),
+                    parse_mode=enums.ParseMode.HTML,
                 )
             except UserAdminInvalid:
                 await message.edit("<b>No rights</b>", parse_mode=enums.ParseMode.HTML)
@@ -1295,24 +1310,22 @@ async def antiraid(client: Client, message: Message):
     elif len(message.command) > 1 and message.command[1] == "off":
         db.set("core.ats", f"antiraid{message.chat.id}", False)
         await message.edit("<b>Anti-raid mode disabled</b>", parse_mode=enums.ParseMode.HTML)
+    elif db.get("core.ats", f"antiraid{message.chat.id}", False):
+        db.set("core.ats", f"antiraid{message.chat.id}", False)
+        await message.edit("<b>Anti-raid mode disabled</b>", parse_mode=enums.ParseMode.HTML)
     else:
-        # toggle
-        if db.get("core.ats", f"antiraid{message.chat.id}", False):
-            db.set("core.ats", f"antiraid{message.chat.id}", False)
-            await message.edit("<b>Anti-raid mode disabled</b>", parse_mode=enums.ParseMode.HTML)
-        else:
-            db.set("core.ats", f"antiraid{message.chat.id}", True)
-            group = await client.get_chat(message.chat.id)
-            if group.linked_chat:
-                db.set(
-                    "core.ats", f"linked{message.chat.id}", group.linked_chat.id
-                )
-            else:
-                db.set("core.ats", f"linked{message.chat.id}", 0)
-            await message.edit(
-                "<b>Anti-raid mode enabled!\n"
-                f"Disable with: </b><code>{prefix}antiraid off</code>", parse_mode=enums.ParseMode.HTML
+        db.set("core.ats", f"antiraid{message.chat.id}", True)
+        group = await client.get_chat(message.chat.id)
+        if group.linked_chat:
+            db.set(
+                "core.ats", f"linked{message.chat.id}", group.linked_chat.id
             )
+        else:
+            db.set("core.ats", f"linked{message.chat.id}", 0)
+        await message.edit(
+            "<b>Anti-raid mode enabled!\n"
+            f"Disable with: </b><code>{prefix}antiraid off</code>", parse_mode=enums.ParseMode.HTML
+        )
 
     update_cache()
 

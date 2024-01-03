@@ -43,11 +43,7 @@ async def kang(client: Client, message: types.Message):
         return
 
     pack = message.command[1]
-    if len(message.command) >= 3:
-        emoji = message.command[2]
-    else:
-        emoji = "✨"
-
+    emoji = message.command[2] if len(message.command) >= 3 else "✨"
     await client.unblock_user("@stickers")
     await interact_with(await client.send_message("@stickers", "/cancel", parse_mode=enums.ParseMode.MARKDOWN))
     await interact_with(await client.send_message("@stickers", "/addsticker", parse_mode=enums.ParseMode.MARKDOWN))
